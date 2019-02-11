@@ -4,33 +4,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser'); //middleware
 var logger = require('morgan');// middlewre
 
-function auth(req,res,next)
-{
-  console.log(req.headers);
-  var authHeader = req.headers.authorization;
-  if(!authHeader){
-    var err = new Error('You are not authorized! ');
-    res.setHeader('WWW-Authenticate','Basic');
-    next(err);
-    return;
-  }
-  else{
-    var auth = new Buffer.from(authHeader.split(' ')[1],'base64').toString().split(':');
-    var user = auth[0];
-    var pass = auth[1];
-    if(user == 'admin' && pass == 'password'){
-      next();
-    }
-    else{
-      var err = new Error('You are not authorized! ');
-      res.setHeader('WWW-Authenticate','Basic');
-      next(err);
-      return;
-    }
-  }
-}
-
-
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var dishRouter = require('./routes/dishRouter');
@@ -41,7 +14,8 @@ const mongoose = require('mongoose');
 const Dishes = require('./models/dishes');
 
 const url = 'mongodb://localhost:27017/conFusion';
-const connect = mongoose.connect(url);
+//MongoClient.connect(url, {useNewUrlParser: true } )
+const connect = mongoose.connect(url,{useNewUrlParser: true });
 
 connect.then((db)=>{
   console.log('connected to server');
@@ -52,6 +26,52 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+app.use(cookieParser('12345-670785'));
+
+function auth(req,res,next)
+{
+  console.log(req.signedCookies);
+  if(!req.signedCookies.user){
+      var authHeader = req.headers.authorization;
+      if(!authHeader){
+        var err = new Error('You are not authenticated! ');
+        res.setHeader('WWW-Authenticate','Basic');
+        err.status = 401;
+        next(err);
+        return;
+      }
+      else{
+        var auth = new Buffer.from(authHeader.split(' ')[1],'base64').toString().split(':');
+        var user = auth[0];
+        var pass = auth[1];
+        if(user === 'admin' && pass === 'password'){
+          res.cookie('user','admin', {signed: true})
+          next();
+        }
+        else{
+          var err = new Error('You are not authenticated! ');
+          res.setHeader('WWW-Authenticate','Basic');
+          err.status = 401;
+          next(err);
+          return;
+        }
+      }
+  }
+  else{
+    if(req.signedCookies.user === 'admin'){
+      next();
+    }
+    else{
+      var err = new Error('You are not authenticated! ');
+      err.status = 401;
+      next(err);
+      return;
+    }
+
+  }
+  
+}
 app.use(auth);
 
 app.use(logger('dev'));
