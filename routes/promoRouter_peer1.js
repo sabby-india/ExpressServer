@@ -1,17 +1,17 @@
 const express = require("express");
 const bodyParser = require('body-parser');
-const Leaders = require('../models/leaders');
-const leaderRouter = express.Router();
+const promoRouter = express.Router();
+const Promotions = require('../models/promotions');
 
-leaderRouter.use(bodyParser.json());
+promoRouter.use(bodyParser.json());
 
-leaderRouter.route('/')
+promoRouter.route('/')
 .get(function(req, res, next){
-    Leaders.find({})
-    .then(function(leaders){
+    Promotions.find({})
+    .then(function(promotion){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(leaders);
+        res.json(promotion);
     }, function(err){
         next(err);
     })
@@ -20,11 +20,11 @@ leaderRouter.route('/')
     });
 })
 .post(function(req, res, next){
-    Leaders.create(req.body)
-    .then(function(leader){
+    Promotions.create(req.body)
+    .then(function(promotion){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(leader);
+        res.json(promotion);
     }, function(err){
         next(err);
     })
@@ -34,10 +34,10 @@ leaderRouter.route('/')
 })
 .put(function(req, res, next){
     res.statusCode = 403;
-    res.end('PUT not allowed on leaders');
+    res.end('PUT not allowed on promotions');
 })
 .delete(function(req, res, next){
-    Leaders.remove({})
+    Promotions.remove({})
     .then(function(resp){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -50,13 +50,13 @@ leaderRouter.route('/')
     });
 });
 
-leaderRouter.route('/:leaderId')
+promoRouter.route('/:promoId')
 .get(function(req, res, next){
-    Leaders.findById(req.params.leaderId)
-    .then(function(leader){
+    Promotions.findById(req.params.promoId)
+    .then(function(promotion){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(leader);
+        res.json(promotion);
     }, function(err){
         next(err);
     })
@@ -66,16 +66,16 @@ leaderRouter.route('/:leaderId')
 })
 .post(function(req, res, next){
     res.statusCode = 403;
-    res.end('POST not allowed on /leaders/'+req.params.leaderId);
+    res.end('POST not allowed on /promotions/'+req.params.promoId );
 })
 .put(function(req, res, next){
-    Leaders.findByIdAndUpdate(req.params.leaderId, {
+    Promotions.findByIdAndUpdate(req.params.promoId, {
         $set : req.body
     }, {new:true})
-    .then(function(leader){
+    .then(function(promotion){
         res.statusCode =200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(leader);
+        res.json(promotion);
     }, function(err){
         next(err);
     })
@@ -84,7 +84,7 @@ leaderRouter.route('/:leaderId')
     });
 })
 .delete(function(req, res, next){
-    Leaders.findByIdAndRemove(req.params.leaderId)
+    Promotions.findByIdAndRemove(req.params.promoId)
     .then(function(resp){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -97,4 +97,4 @@ leaderRouter.route('/:leaderId')
     });
 });
 
-module.exports = leaderRouter;
+module.exports = promoRouter;

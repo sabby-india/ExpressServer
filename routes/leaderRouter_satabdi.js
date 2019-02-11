@@ -2,36 +2,37 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-const Promos = require('../models/promotions');
+const Leaders = require('../models/leaders');
 
-const promoRouter = express.Router();
-promoRouter.use(bodyParser.json());
+const leaderRouter = express.Router();
 
-promoRouter.route('/')
+leaderRouter.use(bodyParser.json());
+
+leaderRouter.route('/')
 .get((req,res,next) => {
-    Promos.find({})
-    .then((promos) => {
+    Leaders.find({})
+    .then((leaders) => {
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');
-        res.json(promos);
+        res.json(leaders);
     },(err) => next(err))
     .catch((err) => next(err));
 })
 .post((req,res,next) => {
-    Promos.create(req.body)  
-    .then((promo) => {
+    Leaders.create(req.body)
+    .then((leader) => {
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');
-        res.json(promo);
+        res.json(leader);
     },(err) => next(err))
     .catch((err) => next(err));  
 })
 .put((req,res,next) => {
     res.statusCode = 403;
-    res.end('PUT operation not supported on /promotions!');
+    res.end('PUT operation not supported on /leaders!');
 })
 .delete((req,res,next) => {
-    Promos.remove({})
+    Leaders.remove({})
     .then((resp) => {
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');
@@ -39,63 +40,62 @@ promoRouter.route('/')
     },(err) => next(err))
     .catch((err) => next(err));  
 });
-promoRouter.route('/:promoId')
+leaderRouter.route('/:leaderId')
 .get((req,res,next) => {
-    Promos.findById(req.params.promoId)
-    .then((promo) => {
+    Leaders.findById(req.params.leaderId)
+    .then((leader) => {
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');
-        res.json(promo);
+        res.json(leader);
     },(err) => next(err))
     .catch((err) => next(err));  
 })
 .post((req,res,next) => {
     res.statusCode = 403; 
-    res.end('POST operation not supported on /promotions/'
-    + req.params.promoId);
+    res.end('POST operation not supported on /leaders/'
+    + req.params.leaderId);
 })
 .put((req,res,next) => {
-    Promos.findById(req.params.promoId)
-    .then((promo) => {
-        if(promo != null){
+    Leaders.findById(req.params.leaderId)
+    .then((leader) => {
+        if(leader != null){
             if(req.body.price){
-                promo.price = req.body.price;
+                leader.designation = req.body.designation;
             }
-            if(req.body.label){
-                promo.label = req.body.label;
+            if(req.body.abbr){
+                leader.abbr = req.body.abbr;
 
             }
             if(req.body.description){
-                promo.description = req.body.description;
+                leader.description = req.body.description;
 
             }
             if(req.body.featured){
-                promo.featured = req.body.featured;
+                leader.featured = req.body.featured;
 
             }
             if(req.body.image){
-                promo.image = req.body.image;
+                leader.image = req.body.image;
 
             }
-            promo.save()
-            .then((promo) => {
+            leader.save()
+            .then((leader) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(promo);
+                res.json(leader);
             }, (err) => next(err));
 
         }
         else{
-            err = new Error('Promotion ' + req.params.promoId+ 'not exists!');
+            err = new Error('Leader ' + req.params.leaderId+ 'not exists!');
             err.status = 404;
             return next(err);
         }
     },(err) => next(err))
     .catch((err) => next(err));
-
 })
 .delete((req,res,next) => {
-    Promos.findByIdAndRemove(req.params.promoId)
+    Leaders.findByIdAndRemove(req.params.leaderId)
     .then((resp) => {
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');
@@ -104,4 +104,4 @@ promoRouter.route('/:promoId')
     .catch((err) => next(err));
 });
 
-module.exports = promoRouter;
+module.exports = leaderRouter;

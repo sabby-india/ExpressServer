@@ -6,7 +6,7 @@ const Dishes = require('../models/dishes');
 
 //will declare dishRouter as express router
 const dishRouter = express.Router();
-
+ //bodyparser is the middleware
 dishRouter.use(bodyParser.json());
 
 //mounting of an express router
